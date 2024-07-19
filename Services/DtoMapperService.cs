@@ -9,14 +9,14 @@ namespace StudentSystem.Services {
     /// </summary>
     public class DtoMapperService : IDtoMappingService {
 
-        #region IStudentDtoMapperService
+        #region StudentDto mapping
 
         /// <summary>
         /// Map StudentDetailDto properties to a Student Entity object.
         /// </summary>
         /// <param name="basicStudentDetailDto"></param>
         /// <param name="student"></param>
-        public void MapStudentDetailDtoToStudentEntity(BasicStudentDetailDto basicStudentDetailDto, Student student) {
+        public void MapBasicStudentDetailDtoToStudentEntity(BasicStudentDetailDto basicStudentDetailDto, Student student) {
             student.Forename = basicStudentDetailDto.Forename;
             student.Surname = basicStudentDetailDto.Surname;
             student.EmailAddress = basicStudentDetailDto.EmailAddress;
@@ -69,14 +69,14 @@ namespace StudentSystem.Services {
 
         #endregion
 
-        #region ICourseDtoMapperService
+        #region CourseDto mapping
 
         /// <summary>
         /// Utility function to map NewCourseDto properties to a Course Entity.
         /// </summary>
         /// <param name="basicCourseDetailDto"></param>
         /// <param name="course"></param>
-        public void MapCourseDetailDtoToCourseEntity(BasicCourseDetailDto basicCourseDetailDto, Course course) {
+        public void MapBasicCourseDetailDtoToCourseEntity(BasicCourseDetailDto basicCourseDetailDto, Course course) {
             course.Title = basicCourseDetailDto.Title;
             course.Qualification = basicCourseDetailDto.Qualification;
         }
@@ -119,7 +119,18 @@ namespace StudentSystem.Services {
 
         #endregion
 
-        #region ICourseEnrollmentDtoMapperService
+        #region CourseEnrollmentDto mapping
+
+        /// <summary>
+        /// Map BasicCourseEnrollmentDetailDto properties to CourseEnrollment Entity.
+        /// </summary>
+        /// <param name="basicCourseEnrollmentDetailDto"></param>
+        /// <param name="enrollment"></param>
+        public void MapBasicCourseEnrollmentDetailDtoToCourseEnrollmentEntity(BasicCourseEnrollmentDetailDto basicCourseEnrollmentDetailDto, CourseEnrollment enrollment) {
+            enrollment.CourseId = basicCourseEnrollmentDetailDto.CourseId;
+            enrollment.StudentId = basicCourseEnrollmentDetailDto.StudentId;
+        }
+
 
         /// <summary>
         /// Map a Course Enrollment Entity to a new CourseEnrollmentDto.
@@ -140,7 +151,7 @@ namespace StudentSystem.Services {
 
         #endregion
 
-        #region IEnrolledStudentDtoMapperService
+        #region EnrolledStudentDto mapping
 
         /// <summary>
         /// Map a Course Enrollment Entity to a new EnrolledStudentDto.
@@ -159,7 +170,7 @@ namespace StudentSystem.Services {
 
         #endregion
 
-        #region IStudentCourseEnrollmentDtoMapperService
+        #region StudentCourseEnrollmentDto mapping
 
         /// <summary>
         /// Map a Course Enrollment Entity to a new StudentCourseEnrollmentDto.

@@ -7,7 +7,6 @@ namespace StudentSystem.Data {
     /// </summary>
     public class ApplicationDbContext : DbContext {
 
-        public string DbPath { get; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
            

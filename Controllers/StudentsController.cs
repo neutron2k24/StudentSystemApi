@@ -111,7 +111,7 @@ namespace StudentSystem.Controllers
                 Student student = new Student();
 
                 //Map DTO to Entity.
-                _dtoMappingService.MapStudentDetailDtoToStudentEntity(basicStudentDetailDto, student);
+                _dtoMappingService.MapBasicStudentDetailDtoToStudentEntity(basicStudentDetailDto, student);
 
                 _dbContext.Students.Add(student);
                 return await _dbContext.SaveChangesAsync() > 0 ?
@@ -136,7 +136,7 @@ namespace StudentSystem.Controllers
                 if (student == null) return NotFound("The specified student could not be found. Update failed.");
 
                 //Map DTO to Entity
-                _dtoMappingService.MapStudentDetailDtoToStudentEntity(basicStudentDetailDto, student);
+                _dtoMappingService.MapBasicStudentDetailDtoToStudentEntity(basicStudentDetailDto, student);
 
                 //Detatch and update
                 _dbContext.Entry(student).State = EntityState.Modified;

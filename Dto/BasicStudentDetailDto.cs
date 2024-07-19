@@ -16,6 +16,7 @@ namespace StudentSystem.Dto
         public string? Surname { get; set; }
 
         [Required]
+        
         public DateTime? DateOfBirth { get; set; }
 
         [Required]

@@ -100,7 +100,7 @@ namespace StudentSystem.Controllers
                 Course course = new Course();
 
                 //Map CourseDto propertiers to Course
-                _dtoMappingService.MapCourseDetailDtoToCourseEntity(basicCourseDetailDto, course);
+                _dtoMappingService.MapBasicCourseDetailDtoToCourseEntity(basicCourseDetailDto, course);
                 _dbContext.Courses.Add(course);
                 
                 return await _dbContext.SaveChangesAsync() > 0 ? 
@@ -121,7 +121,7 @@ namespace StudentSystem.Controllers
                 if (course == null) return NotFound("The specified course could not be found. Update failed.");
 
                 //Map CourseDto propertiers to Course
-                _dtoMappingService.MapCourseDetailDtoToCourseEntity(basicCourseDetailDto, course);
+                _dtoMappingService.MapBasicCourseDetailDtoToCourseEntity(basicCourseDetailDto, course);
 
                 //Detatch and update
                 _dbContext.Entry(course).State = EntityState.Modified;

@@ -120,13 +120,10 @@ namespace StudentSystem.Controllers
             if (ModelState.IsValid) {
                 //Check that we do not have a conflicting enrollment
                 if (_dbContext.CourseEnrollments.Where(ce => ce.StudentId == basicCourseEnrollmentDetailDto.StudentId && ce.CourseId == basicCourseEnrollmentDetailDto.CourseId).Count() == 0) {
-
                     //Create a new course enrollment using DTO properties and current DateTime
-                    CourseEnrollment courseEnrollment = new CourseEnrollment() {
-                        EnrollmentDate = DateTime.Now,
-                        CourseId = basicCourseEnrollmentDetailDto.CourseId,
-                        StudentId = basicCourseEnrollmentDetailDto.StudentId,
-                    };
+                    CourseEnrollment courseEnrollment = new CourseEnrollment();
+                    _dtoMappingService.MapBasicCourseEnrollmentDetailDtoToCourseEnrollmentEntity(basicCourseEnrollmentDetailDto, courseEnrollment);
+                    courseEnrollment.EnrollmentDate = DateTime.Now;
 
                     _dbContext.CourseEnrollments.Add(courseEnrollment);
                     await _dbContext.SaveChangesAsync();

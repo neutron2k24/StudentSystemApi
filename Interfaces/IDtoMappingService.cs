@@ -11,7 +11,7 @@ namespace StudentSystem.Interfaces {
         /// <summary>
         /// Function to map NewCourseDto properties to a Course Entity.
         /// </summary>
-        void MapCourseDetailDtoToCourseEntity(BasicCourseDetailDto courseDetailDto, Course course);
+        void MapBasicCourseDetailDtoToCourseEntity(BasicCourseDetailDto courseDetailDto, Course course);
 
         /// <summary>
         /// Function to map CourseDto properties to a Course Entity.
@@ -37,6 +37,11 @@ namespace StudentSystem.Interfaces {
         #region EnrolledStudentDto Mapping
 
         /// <summary>
+        /// Map BasicCourseEnrollmentDetailDto properties to CourseEnrollment Entity.
+        /// </summary>
+        void MapBasicCourseEnrollmentDetailDtoToCourseEnrollmentEntity(BasicCourseEnrollmentDetailDto basicCourseEnrollmentDetailDto, CourseEnrollment enrollment);
+
+        /// <summary>
         /// Map a Course Enrollment Entity to a new EnrolledStudentDto.
         /// </summary>
         EnrolledStudentDto? GetEnrolledStudentDtoForCourseEnrollmentEntity(CourseEnrollment courseEnrollment);
@@ -57,7 +62,7 @@ namespace StudentSystem.Interfaces {
         /// <summary>
         /// Map StudentDetailDto properties to a Student Entity object.
         /// </summary>
-        void MapStudentDetailDtoToStudentEntity(BasicStudentDetailDto studentDetailDto, Student student);
+        void MapBasicStudentDetailDtoToStudentEntity(BasicStudentDetailDto studentDetailDto, Student student);
 
         /// <summary>
         /// Map StudentDto properties to Student Entity.
