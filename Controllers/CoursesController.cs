@@ -24,11 +24,12 @@ namespace StudentSystem.Controllers
         //Application db context
         private readonly ApplicationDbContext _dbContext;
         private readonly IDtoMappingService _dtoMappingService;
+        private readonly IDtoGeneratorService _dtoGeneratorService;
 
-        public CoursesController(ApplicationDbContext dbContext, IDtoMappingService dtoMappingService) {
-            if (dbContext == null || dtoMappingService == null) throw new Exception("ApplicationDbContext and DtoMapping Service must be configured.");
+        public CoursesController(ApplicationDbContext dbContext, IDtoMappingService dtoMappingService, IDtoGeneratorService dtoGeneratorService) {
             _dbContext = dbContext;
             _dtoMappingService = dtoMappingService;
+            _dtoGeneratorService = dtoGeneratorService;
         }
 
         [HttpGet]
@@ -46,7 +47,7 @@ namespace StudentSystem.Controllers
             if(courses != null) {
                 List<CourseDto> courseDtos = new List<CourseDto>();
                 courses.ForEach(course => {
-                    CourseDto? courseDto = _dtoMappingService.GetCourseDtoForCourseEntity(course, includeStudents);
+                    CourseDto? courseDto = _dtoGeneratorService.GetCourseDtoForCourseEntity(course, includeStudents);
                     if (courseDto != null) courseDtos.Add(courseDto);
                 });
                 return Ok(courseDtos);
@@ -69,7 +70,7 @@ namespace StudentSystem.Controllers
             if (courses != null) {
                 List<CourseDto> courseDtos = new List<CourseDto>();
                 courses.ForEach(course => {
-                    CourseDto? courseDto = _dtoMappingService.GetCourseDtoForCourseEntity(course, includeStudents);
+                    CourseDto? courseDto = _dtoGeneratorService.GetCourseDtoForCourseEntity(course, includeStudents);
                     if (courseDto != null) courseDtos.Add(courseDto);
                 });
                 return Ok(courseDtos);
@@ -85,7 +86,7 @@ namespace StudentSystem.Controllers
             Course? course = includeStudents ? await _dbContext.Courses.Where(c => c.CourseId == id).Include(c => c.Enrollments).ThenInclude(en => en.Student).SingleOrDefaultAsync() : await _dbContext.Courses.FindAsync(id);
 
             if (course != null) {
-                return Ok(_dtoMappingService.GetCourseDtoForCourseEntity(course, includeStudents));
+                return Ok(_dtoGeneratorService.GetCourseDtoForCourseEntity(course, includeStudents));
             }
             return NotFound("No matching course was found for the specified id.");
         }
@@ -126,7 +127,7 @@ namespace StudentSystem.Controllers
                 //Detatch and update
                 _dbContext.Entry(course).State = EntityState.Modified;
                 return await _dbContext.SaveChangesAsync() > 0 ? 
-                    Ok(_dtoMappingService.GetCourseDtoForCourseEntity(course, true))
+                    Ok(_dtoGeneratorService.GetCourseDtoForCourseEntity(course, true))
                     : Problem(GENERIC_SERVER_ERROR_MESSAGE, statusCode: 500);
             }
             return BadRequest(ModelState);

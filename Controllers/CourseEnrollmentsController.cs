@@ -20,11 +20,12 @@ namespace StudentSystem.Controllers
         //Application db context
         private readonly ApplicationDbContext _dbContext;
         private readonly IDtoMappingService _dtoMappingService;
+        private readonly IDtoGeneratorService _dtoGeneratorService;
 
-        public CourseEnrollmentsController(ApplicationDbContext dbContext, IDtoMappingService dtoMappingService) {
-            if (dbContext == null || dtoMappingService == null) throw new Exception("ApplicationContext and DtoMapping Service must be configured.");
+        public CourseEnrollmentsController(ApplicationDbContext dbContext, IDtoMappingService dtoMappingService, IDtoGeneratorService dtoGeneratorService) {
             _dbContext = dbContext;
             _dtoMappingService = dtoMappingService;
+            _dtoGeneratorService = dtoGeneratorService;
         }
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace StudentSystem.Controllers
             if (enrollments != null && enrollments.Count > 0) { 
                 List<CourseEnrollmentDto> courseEnrollmentDtos = new List<CourseEnrollmentDto>();
                 enrollments.ForEach(enrollment => {
-                    CourseEnrollmentDto? courseEnrollmentDto = _dtoMappingService.GetCourseEnrollmentDtoForCourseEnrollmentEntity(enrollment);
+                    CourseEnrollmentDto? courseEnrollmentDto = _dtoGeneratorService.GetCourseEnrollmentDtoForCourseEnrollmentEntity(enrollment);
                     if (courseEnrollmentDto != null) courseEnrollmentDtos.Add(courseEnrollmentDto);
                 });
                 return Ok(courseEnrollmentDtos);
@@ -57,7 +58,7 @@ namespace StudentSystem.Controllers
             if (enrollments != null && enrollments.Count > 0) {
                 List<EnrolledStudentDto> enrolledStudents = new List<EnrolledStudentDto>();
                 enrollments.ForEach(enrollment => {
-                    EnrolledStudentDto? endrolledStudentDto = _dtoMappingService.GetEnrolledStudentDtoForCourseEnrollmentEntity(enrollment);
+                    EnrolledStudentDto? endrolledStudentDto = _dtoGeneratorService.GetEnrolledStudentDtoForCourseEnrollmentEntity(enrollment);
                     if (endrolledStudentDto != null) enrolledStudents.Add(endrolledStudentDto);
                 });
                 return Ok(enrolledStudents);
@@ -76,7 +77,7 @@ namespace StudentSystem.Controllers
             if (enrollments != null && enrollments.Count > 0) {
                 List<StudentCourseEnrollmentDto> enrolledCourses = new List<StudentCourseEnrollmentDto>();
                 enrollments.ForEach(enrollment => {
-                    StudentCourseEnrollmentDto? studentCourseEnrollmentDto = _dtoMappingService.GetStudentCourseEnrollmentDtoForCourseEnrollmentEntity(enrollment);
+                    StudentCourseEnrollmentDto? studentCourseEnrollmentDto = _dtoGeneratorService.GetStudentCourseEnrollmentDtoForCourseEnrollmentEntity(enrollment);
                     if (studentCourseEnrollmentDto != null) enrolledCourses.Add(studentCourseEnrollmentDto);
                 });
                 return Ok(enrolledCourses);
@@ -101,7 +102,7 @@ namespace StudentSystem.Controllers
                 _dbContext.Entry(courseEnrollment).Reference(ce => ce.Course).Load();
                 _dbContext.Entry(courseEnrollment).Reference(ce => ce.Student).Load();
 
-                return Ok(_dtoMappingService.GetCourseEnrollmentDtoForCourseEnrollmentEntity(courseEnrollment));
+                return Ok(_dtoGeneratorService.GetCourseEnrollmentDtoForCourseEnrollmentEntity(courseEnrollment));
             }
             return NotFound("No matching course was found for the specified id.");
         }

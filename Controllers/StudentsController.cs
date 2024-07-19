@@ -23,11 +23,13 @@ namespace StudentSystem.Controllers
         //Application db context
         private readonly ApplicationDbContext _dbContext;
         private readonly IDtoMappingService _dtoMappingService;
+        private readonly IDtoGeneratorService _dtoGeneratorService;
 
-        public StudentsController(ApplicationDbContext dbContext, IDtoMappingService dtoMappingService) {
+        public StudentsController(ApplicationDbContext dbContext, IDtoMappingService dtoMappingService, IDtoGeneratorService dtoGeneratorService) {
             if (dbContext == null || dtoMappingService == null) throw new Exception("ApplicationContext and DtoMapping Service must be configured.");
             _dbContext = dbContext;
             _dtoMappingService = dtoMappingService;
+            _dtoGeneratorService = dtoGeneratorService;
         }
 
         /// <summary>
@@ -48,7 +50,7 @@ namespace StudentSystem.Controllers
             if (students != null) {
                 List<StudentDto> studentDtos = new List<StudentDto>();
                 students.ForEach(student => {
-                    StudentDto? studentDto = _dtoMappingService.GetStudentDtoForStudentEntity(student, includeEnrolledCourses);
+                    StudentDto? studentDto = _dtoGeneratorService.GetStudentDtoForStudentEntity(student, includeEnrolledCourses);
                     if (studentDto != null) studentDtos.Add(studentDto);
                 });
 
@@ -75,7 +77,7 @@ namespace StudentSystem.Controllers
             if (students != null) {
                 List<StudentDto> studentDtos = new List<StudentDto>();
                 students.ForEach(student => {
-                    StudentDto? studentDto = _dtoMappingService.GetStudentDtoForStudentEntity(student, includeEnrolledCourses);
+                    StudentDto? studentDto = _dtoGeneratorService.GetStudentDtoForStudentEntity(student, includeEnrolledCourses);
                     if (studentDto != null) studentDtos.Add(studentDto);
                 });
 
@@ -94,7 +96,7 @@ namespace StudentSystem.Controllers
         public async Task<IActionResult> GetStudent(int id, bool includeEnrolledCourses = false) {
             Student? student = includeEnrolledCourses ? await _dbContext.Students.Where(s => s.StudentId == id).Include(s => s.Enrollments).ThenInclude(en => en.Course).SingleOrDefaultAsync() : await _dbContext.Students.FindAsync(id);
             if (student != null) {
-                return Ok(_dtoMappingService.GetStudentDtoForStudentEntity(student, includeEnrolledCourses));
+                return Ok(_dtoGeneratorService.GetStudentDtoForStudentEntity(student, includeEnrolledCourses));
             }
             return NotFound("No matching student was found for the specified id.");
         }
@@ -122,7 +124,7 @@ namespace StudentSystem.Controllers
         }
 
         /// <summary>
-        /// Create a new student.
+        /// Update a Student
         /// </summary>
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(StudentDto), 200)]
@@ -142,7 +144,7 @@ namespace StudentSystem.Controllers
                 _dbContext.Entry(student).State = EntityState.Modified;
 
                 return await _dbContext.SaveChangesAsync() > 0 ? 
-                    Ok(_dtoMappingService.GetStudentDtoForStudentEntity(student, true)) : 
+                    Ok(_dtoGeneratorService.GetStudentDtoForStudentEntity(student, true)) : 
                     Problem(GENERIC_SERVER_ERROR_MESSAGE, statusCode: 500);
             }
             return BadRequest(ModelState);
@@ -163,9 +165,7 @@ namespace StudentSystem.Controllers
             return await _dbContext.SaveChangesAsync() > 0 ? 
                 Ok("Student was deleted.") : 
                 Problem(GENERIC_SERVER_ERROR_MESSAGE, statusCode: 500);
-        }
-
-       
+        }  
     }
 
 }

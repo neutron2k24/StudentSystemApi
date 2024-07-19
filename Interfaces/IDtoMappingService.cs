@@ -3,11 +3,10 @@ using StudentSystem.Models;
 
 namespace StudentSystem.Interfaces {
     /// <summary>
-    /// Interface for DTO Mapping Service.
+    /// Interface for DTO to Entity Mapping Service.
     /// </summary>
     public interface IDtoMappingService  {
 
-        #region CourseDto Mapping
         /// <summary>
         /// Function to map NewCourseDto properties to a Course Entity.
         /// </summary>
@@ -19,45 +18,9 @@ namespace StudentSystem.Interfaces {
         void MapCourseDtoToCourseEntity(CourseDto courseDto, Course course);
 
         /// <summary>
-        /// Get a CourseDto for a specified course entity.
-        /// </summary>
-        CourseDto? GetCourseDtoForCourseEntity(Course course, bool includeEnrollments = false);
-
-        #endregion
-
-        #region CourseEnrollmentDto Mapping
-
-        /// <summary>
-        /// Map a Course Enrollment Entity to a new CourseEnrollmentDto.
-        /// </summary>
-        CourseEnrollmentDto? GetCourseEnrollmentDtoForCourseEnrollmentEntity(CourseEnrollment courseEnrollment);
-
-        #endregion
-
-        #region EnrolledStudentDto Mapping
-
-        /// <summary>
         /// Map BasicCourseEnrollmentDetailDto properties to CourseEnrollment Entity.
         /// </summary>
         void MapBasicCourseEnrollmentDetailDtoToCourseEnrollmentEntity(BasicCourseEnrollmentDetailDto basicCourseEnrollmentDetailDto, CourseEnrollment enrollment);
-
-        /// <summary>
-        /// Map a Course Enrollment Entity to a new EnrolledStudentDto.
-        /// </summary>
-        EnrolledStudentDto? GetEnrolledStudentDtoForCourseEnrollmentEntity(CourseEnrollment courseEnrollment);
-
-        #endregion
-
-        #region StudentCourseEnrollmentDto Mapping
-        
-        /// <summary>
-        /// Map a Course Enrollment Entity to a new StudentCourseEnrollmentDto.
-        /// </summary>
-        StudentCourseEnrollmentDto? GetStudentCourseEnrollmentDtoForCourseEnrollmentEntity(CourseEnrollment courseEnrollment);
-
-        #endregion
-
-        #region StudentDto Mapping
 
         /// <summary>
         /// Map StudentDetailDto properties to a Student Entity object.
@@ -69,11 +32,6 @@ namespace StudentSystem.Interfaces {
         /// </summary>
         void MapStudentDtoToStudentEntity(StudentDto studentDto, Student student);
 
-        /// <summary>
-        /// Map Student Entity properties to a new StudentDto object.
-        /// </summary>
-        StudentDto? GetStudentDtoForStudentEntity(Student student, bool includeEnrollments = false);
-
-        #endregion
+        
     }
 }

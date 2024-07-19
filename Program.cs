@@ -18,7 +18,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite
 
 //Prevent Json Cyclic exceptions due to the Entity Framework references, and omit null properties from JSON response.
 builder.Services.AddControllers().AddJsonOptions(options => {
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    //options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 
     //Omit null values from serialized response.
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
@@ -55,6 +55,7 @@ builder.Services.AddSwaggerGen(settings => {
 //Constructor Dependency Injection for Applcation DbContext into controllers.
 builder.Services.AddScoped<ApplicationDbContext>();
 builder.Services.AddSingleton<IDtoMappingService, DtoMapperService>();
+builder.Services.AddSingleton<IDtoGeneratorService, DtoGeneratorService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
