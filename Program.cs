@@ -52,11 +52,25 @@ builder.Services.AddSwaggerGen(settings => {
     });
 });
 
+//Add CORS support
+string allowedOrigins = "localhost";
+builder.Services.AddCors(options => {
+    options.AddPolicy(name: allowedOrigins, policy => {
+        policy.WithOrigins("https://localhost", "http://localhost")
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 //Constructor Dependency Injection for Applcation DbContext into controllers.
 builder.Services.AddScoped<ApplicationDbContext>();
 builder.Services.AddSingleton<IDtoMappingService, DtoMapperService>();
 builder.Services.AddSingleton<IDtoGeneratorService, DtoGeneratorService>();
 var app = builder.Build();
+
+//Enable CORS
+app.UseCors(allowedOrigins);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {

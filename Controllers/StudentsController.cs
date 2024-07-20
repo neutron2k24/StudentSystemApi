@@ -6,6 +6,7 @@ using StudentSystem.Dto;
 using StudentSystem.Interfaces;
 using StudentSystem.Models;
 using StudentSystem.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace StudentSystem.Controllers
 {
@@ -32,21 +33,24 @@ namespace StudentSystem.Controllers
             _dtoGeneratorService = dtoGeneratorService;
         }
 
+
         /// <summary>
-        /// Retrieve a list of all students in the database.
+        /// Function to retrieve students and return a PageCollectionResultsDto.
         /// </summary>
-        [HttpGet]
-        [ProducesResponseType(typeof(List<StudentDto>), 200)]
-        [ProducesResponseType(401)]
-        public async Task<IActionResult> GetStudents(int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, bool includeEnrolledCourses = false) {
-            IQueryable query = _dbContext.Students.Skip(pageIndex * pageSize).Take(pageSize);
+        private async Task<PagedCollectionResultDto<StudentDto>?> GetStudents(int pageIndex, int pageSize, string? surnameSearch, bool includeEnrolledCourses = false) {
+            IQueryable<Student> query = _dbContext.Students;
+            
+            if(!string.IsNullOrEmpty(surnameSearch)) query = query.Where(s => s.Surname != null && s.Surname.ToLower().StartsWith(surnameSearch.ToLower()));
+
+            //Count all matching records before paging.
+            int totalCount = await query.CountAsync();
+            if (pageSize > 0) query = query.Skip(pageIndex * pageSize).Take(pageSize).AsQueryable();
+
             List<Student>? students;
-
             if (includeEnrolledCourses)
-                students = await _dbContext.Students.Include(s => s.Enrollments).ThenInclude(en => en.Course).ToListAsync();
+                students = await query.Include(s => s.Enrollments).ThenInclude(en => en.Course).ToListAsync();
             else
-                students = await _dbContext.Students.ToListAsync();
-
+                students = await query.ToListAsync();
             if (students != null) {
                 List<StudentDto> studentDtos = new List<StudentDto>();
                 students.ForEach(student => {
@@ -54,36 +58,31 @@ namespace StudentSystem.Controllers
                     if (studentDto != null) studentDtos.Add(studentDto);
                 });
 
-                return Ok(studentDtos);
+                return _dtoGeneratorService.GetPagedCollectionResultDto(pageIndex, pageSize, totalCount, studentDtos);
             }
-            return Ok(null);
+            return null;
         }
 
+
+        /// <summary>
+        /// Retrieve a list of all students in the database.
+        /// </summary>
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedCollectionResultDto<StudentDto>), 200)]
+        [ProducesResponseType(401)]
+        public async Task<IActionResult> GetStudents(int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, bool includeEnrolledCourses = false) {
+            return Ok(await GetStudents(pageIndex, pageSize, null, includeEnrolledCourses));
+        }
 
         /// <summary>
         /// Retrieve a list of all students with surname search
         /// </summary>
         [HttpGet("search/{surname}")]
-        [ProducesResponseType(typeof(List<StudentDto>), 200)]
+        [ProducesResponseType(typeof(PagedCollectionResultDto<StudentDto>), 200)]
         [ProducesResponseType(401)]
         public async Task<IActionResult> GetStudentsBySurnameSearch(string surname, int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, bool includeEnrolledCourses = false) {
-            IQueryable query = _dbContext.Students.Where(s => s.Surname != null && s.Surname.ToLower().StartsWith(surname.ToLower())).Skip(pageIndex * pageSize).Take(pageSize);
-            List<Student>? students;
-
-            if (includeEnrolledCourses)
-                students = await _dbContext.Students.Include(s => s.Enrollments).ThenInclude(en => en.Course).ToListAsync();
-            else
-                students = await _dbContext.Students.ToListAsync();
-            if (students != null) {
-                List<StudentDto> studentDtos = new List<StudentDto>();
-                students.ForEach(student => {
-                    StudentDto? studentDto = _dtoGeneratorService.GetStudentDtoForStudentEntity(student, includeEnrolledCourses);
-                    if (studentDto != null) studentDtos.Add(studentDto);
-                });
-
-                return Ok(studentDtos);
-            }
-            return NotFound("No students found for the surname specified.");
+            PagedCollectionResultDto<StudentDto>? result = await GetStudents(pageIndex, pageSize, surname, includeEnrolledCourses);
+            return result != null ? Ok(result) : NotFound("No students found for the surname specified.");
         }
 
         /// <summary>

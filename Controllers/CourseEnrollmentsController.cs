@@ -6,6 +6,7 @@ using StudentSystem.Dto;
 using StudentSystem.Interfaces;
 using StudentSystem.Models;
 using StudentSystem.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -32,17 +33,23 @@ namespace StudentSystem.Controllers
         /// Retrieve a list of all Course Enrollments from the database
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(List<CourseEnrollmentDto>), 200)]
+        [ProducesResponseType(typeof(PagedCollectionResultDto<CourseEnrollmentDto>), 200)]
         [ProducesResponseType(401)]
         public async Task<IActionResult> GetCourseEnrollments(int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE) {
-            List<CourseEnrollment> enrollments = await _dbContext.CourseEnrollments.Skip(pageIndex * pageSize).Take(pageSize).Include(c => c.Course).Include(c => c.Student).ToListAsync();
+            IQueryable<CourseEnrollment> query = _dbContext.CourseEnrollments;
+
+            //Count all matching records before paging.
+            int totalCount = await query.CountAsync();
+            if (pageSize > 0) query = query.Skip(pageIndex * pageSize).Take(pageSize).AsQueryable();
+            
+            List<CourseEnrollment> enrollments = await query.Include(c => c.Course).Include(c => c.Student).ToListAsync();
             if (enrollments != null && enrollments.Count > 0) { 
                 List<CourseEnrollmentDto> courseEnrollmentDtos = new List<CourseEnrollmentDto>();
                 enrollments.ForEach(enrollment => {
                     CourseEnrollmentDto? courseEnrollmentDto = _dtoGeneratorService.GetCourseEnrollmentDtoForCourseEnrollmentEntity(enrollment);
                     if (courseEnrollmentDto != null) courseEnrollmentDtos.Add(courseEnrollmentDto);
                 });
-                return Ok(courseEnrollmentDtos);
+                return Ok(_dtoGeneratorService.GetPagedCollectionResultDto(pageIndex, pageSize, totalCount, courseEnrollmentDtos));
             }
             return Ok(null);
         }

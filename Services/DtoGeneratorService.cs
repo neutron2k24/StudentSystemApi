@@ -125,5 +125,25 @@ namespace StudentSystem.Services {
         }
 
         #endregion
+
+        #region PagedResultDto
+
+        /// <summary>
+        /// Generate a PagedCollectionResultDto object
+        /// </summary>
+        public PagedCollectionResultDto<T> GetPagedCollectionResultDto<T>(int pageIndex, int pageSize, int totalCount, List<T> results) {
+            return new PagedCollectionResultDto<T>() {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                ResultCount = results.Count,
+                PageCount = pageSize > 0 ? Convert.ToInt32(Math.Ceiling(Convert.ToDecimal(totalCount) / pageSize)) : 1,
+                Results = results
+            };
+        }
+
+        #endregion
+
+
     }
 }

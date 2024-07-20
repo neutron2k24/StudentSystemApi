@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -32,34 +33,21 @@ namespace StudentSystem.Controllers
             _dtoGeneratorService = dtoGeneratorService;
         }
 
-        [HttpGet]
-        [ProducesResponseType(typeof(List<CourseDto>), 200)]
-        [ProducesResponseType(401)]
-        public async Task<IActionResult> GetCourses(int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, bool includeStudents = false) {
-            IQueryable<Course> query = _dbContext.Courses.Skip(pageIndex * pageSize).Take(pageSize);
-            List<Course>? courses;
+
+        /// <summary>
+        /// Function to retrieve courses.
+        /// </summary>
+        /// <returns></returns>
+        private async Task<PagedCollectionResultDto<CourseDto>?> GetCourses(int pageIndex, int pageSize, string? courseTitleSearch, bool includeStudents = false) {
+            IQueryable<Course> query = _dbContext.Courses;
             
-            if (includeStudents) 
-                courses = await query.Include(c => c.Enrollments).ThenInclude(en => en.Student).ToListAsync();
-            else
-                courses = await query.ToListAsync();
+            if(!string.IsNullOrEmpty(courseTitleSearch)) query = query.Where(c => c.Title != null && c.Title.ToLower().StartsWith(courseTitleSearch.ToLower()));
 
-            if(courses != null) {
-                List<CourseDto> courseDtos = new List<CourseDto>();
-                courses.ForEach(course => {
-                    CourseDto? courseDto = _dtoGeneratorService.GetCourseDtoForCourseEntity(course, includeStudents);
-                    if (courseDto != null) courseDtos.Add(courseDto);
-                });
-                return Ok(courseDtos);
-            }
-            return Ok(null);
-        }
+            //Count all matching records before paging.
+            int totalCount = await query.CountAsync();
 
-        [HttpGet("search/{courseTitle}")]
-        [ProducesResponseType(typeof(List<CourseDto>), 200)]
-        [ProducesResponseType(401)]
-        public async Task<IActionResult> GetCoursesBySearch(string courseTitle, int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, bool includeStudents = false) {
-            IQueryable<Course> query = _dbContext.Courses.Where(c => c.Title != null && c.Title.ToLower().StartsWith(courseTitle.ToLower())).Skip(pageIndex * pageSize).Take(pageSize);
+            if (pageSize > 0) query = query.Skip(pageIndex * pageSize).Take(pageSize).AsQueryable();
+
             List<Course>? courses;
 
             if (includeStudents)
@@ -73,9 +61,27 @@ namespace StudentSystem.Controllers
                     CourseDto? courseDto = _dtoGeneratorService.GetCourseDtoForCourseEntity(course, includeStudents);
                     if (courseDto != null) courseDtos.Add(courseDto);
                 });
-                return Ok(courseDtos);
+
+                return _dtoGeneratorService.GetPagedCollectionResultDto(pageIndex, pageSize, totalCount, courseDtos);
             }
-            return Ok(null);
+            return null;
+        }
+
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedCollectionResultDto<CourseDto>), 200)]
+        [ProducesResponseType(401)]
+        public async Task<IActionResult> GetCourses(int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, bool includeStudents = false) {
+            return Ok(await GetCourses(pageIndex, pageSize, null, includeStudents));
+        }
+
+        [HttpGet("search/{courseTitle}")]
+        [ProducesResponseType(typeof(PagedCollectionResultDto<CourseDto>), 200)]
+        [ProducesResponseType(401)]
+        public async Task<IActionResult> GetCoursesBySearch(string courseTitle, int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, bool includeStudents = false) {
+
+            PagedCollectionResultDto<CourseDto>? result = await GetCourses(pageIndex, pageSize, courseTitle, includeStudents);
+            return result != null ? Ok(result) : NotFound("No courses found for the specified search criteria.");
         }
 
         [HttpGet("{id}")]

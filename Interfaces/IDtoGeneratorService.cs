@@ -31,5 +31,10 @@ namespace StudentSystem.Interfaces {
         /// Map Student Entity properties to a new StudentDto object.
         /// </summary>
         StudentDto? GetStudentDtoForStudentEntity(Student student, bool includeEnrollments = false);
+
+        /// <summary>
+        /// Generate a PagedCollectionResultDto object
+        /// </summary>
+        PagedCollectionResultDto<T> GetPagedCollectionResultDto<T>(int pageIndex, int pageSize, int totalCount, List<T> results);
     }
 }
