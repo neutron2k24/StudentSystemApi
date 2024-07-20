@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StudentSystem.Configuration;
 using StudentSystem.Data;
 using StudentSystem.Dto;
+using StudentSystem.Enums;
 using StudentSystem.Interfaces;
 using StudentSystem.Models;
 using StudentSystem.Services;
@@ -33,14 +34,39 @@ namespace StudentSystem.Controllers
             _dtoGeneratorService = dtoGeneratorService;
         }
 
+        /// <summary>
+        /// Apply specified Sort Direct and Field to query
+        /// </summary>
+        private void ApplySortOrder(ref IQueryable<Student> query, StudentSortField sortBy, SortDirection sortDir) {
+            switch (sortBy) {
+                default:
+                case StudentSortField.Surname:
+                    query = sortDir == SortDirection.Ascending ? query.OrderBy(c => c.Surname) : query.OrderByDescending(c => c.Surname);
+                    break;
+                case StudentSortField.Forename:
+                    query = sortDir == SortDirection.Ascending ? query.OrderBy(c => c.Forename) : query.OrderByDescending(c => c.Forename);
+                    break;
+                case StudentSortField.Email:
+                    query = sortDir == SortDirection.Ascending ? query.OrderBy(c => c.EmailAddress) : query.OrderByDescending(c => c.EmailAddress);
+                    break;
+                case StudentSortField.DateOfBirth:
+                    query = sortDir == SortDirection.Ascending ? query.OrderBy(c => c.DateOfBirth) : query.OrderByDescending(c => c.DateOfBirth);
+                    break;
+                case StudentSortField.Gender:
+                    query = sortDir == SortDirection.Ascending ? query.OrderBy(c => c.Gender) : query.OrderByDescending(c => c.Gender);
+                    break;
+            }
+        }
+
 
         /// <summary>
         /// Function to retrieve students and return a PageCollectionResultsDto.
         /// </summary>
-        private async Task<PagedCollectionResultDto<StudentDto>?> GetStudents(int pageIndex, int pageSize, string? surnameSearch, bool includeEnrolledCourses = false) {
+        private async Task<PagedCollectionResultDto<StudentDto>?> GetStudents(int pageIndex, int pageSize, StudentSortField sortBy, SortDirection sortDir, string? surnameSearch, bool includeEnrolledCourses = false) {
             IQueryable<Student> query = _dbContext.Students;
-            
-            if(!string.IsNullOrEmpty(surnameSearch)) query = query.Where(s => s.Surname != null && s.Surname.ToLower().StartsWith(surnameSearch.ToLower()));
+            ApplySortOrder(ref query, sortBy, sortDir);
+
+            if (!string.IsNullOrEmpty(surnameSearch)) query = query.Where(s => s.Surname != null && s.Surname.ToLower().StartsWith(surnameSearch.ToLower()));
 
             //Count all matching records before paging.
             int totalCount = await query.CountAsync();
@@ -70,8 +96,8 @@ namespace StudentSystem.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(PagedCollectionResultDto<StudentDto>), 200)]
         [ProducesResponseType(401)]
-        public async Task<IActionResult> GetStudents(int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, bool includeEnrolledCourses = false) {
-            return Ok(await GetStudents(pageIndex, pageSize, null, includeEnrolledCourses));
+        public async Task<IActionResult> GetStudents(int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, StudentSortField sortBy = StudentSortField.Surname, SortDirection sortDir = SortDirection.Ascending, bool includeEnrolledCourses = false) {
+            return Ok(await GetStudents(pageIndex, pageSize, sortBy, sortDir, null, includeEnrolledCourses));
         }
 
         /// <summary>
@@ -80,8 +106,8 @@ namespace StudentSystem.Controllers
         [HttpGet("search/{surname}")]
         [ProducesResponseType(typeof(PagedCollectionResultDto<StudentDto>), 200)]
         [ProducesResponseType(401)]
-        public async Task<IActionResult> GetStudentsBySurnameSearch(string surname, int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, bool includeEnrolledCourses = false) {
-            PagedCollectionResultDto<StudentDto>? result = await GetStudents(pageIndex, pageSize, surname, includeEnrolledCourses);
+        public async Task<IActionResult> GetStudentsBySurnameSearch(string surname, int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, StudentSortField sortBy = StudentSortField.Surname, SortDirection sortDir = SortDirection.Ascending, bool includeEnrolledCourses = false) {
+            PagedCollectionResultDto<StudentDto>? result = await GetStudents(pageIndex, pageSize, sortBy, sortDir, surname, includeEnrolledCourses);
             return result != null ? Ok(result) : NotFound("No students found for the surname specified.");
         }
 

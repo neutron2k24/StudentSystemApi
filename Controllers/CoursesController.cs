@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using StudentSystem.Configuration;
 using StudentSystem.Data;
 using StudentSystem.Dto;
+using StudentSystem.Enums;
 using StudentSystem.Interfaces;
 using StudentSystem.Models;
 using StudentSystem.Services;
@@ -35,13 +36,30 @@ namespace StudentSystem.Controllers
 
 
         /// <summary>
+        /// Apply specified Sort Direct and Field to query
+        /// </summary>
+        private void ApplySortOrder(ref IQueryable<Course> query, CourseSortField sortBy, SortDirection sortDir) {
+            switch (sortBy) {
+                default:
+                case CourseSortField.Title:
+                    query = sortDir == SortDirection.Ascending ? query.OrderBy(c => c.Title) : query.OrderByDescending(c => c.Title);
+                    break;
+                case CourseSortField.Qualification:
+                    query = sortDir == SortDirection.Ascending ? query.OrderBy(c => c.Qualification) : query.OrderByDescending(c => c.Qualification);
+                    break;
+            }
+        }
+
+
+        /// <summary>
         /// Function to retrieve courses.
         /// </summary>
         /// <returns></returns>
-        private async Task<PagedCollectionResultDto<CourseDto>?> GetCourses(int pageIndex, int pageSize, string? courseTitleSearch, bool includeStudents = false) {
+        private async Task<PagedCollectionResultDto<CourseDto>?> GetCourses(int pageIndex, int pageSize, CourseSortField sortBy, SortDirection sortDir, string? courseTitleSearch, bool includeStudents = false) {
             IQueryable<Course> query = _dbContext.Courses;
-            
-            if(!string.IsNullOrEmpty(courseTitleSearch)) query = query.Where(c => c.Title != null && c.Title.ToLower().StartsWith(courseTitleSearch.ToLower()));
+            ApplySortOrder(ref query, sortBy, sortDir);
+
+            if (!string.IsNullOrEmpty(courseTitleSearch)) query = query.Where(c => c.Title != null && c.Title.ToLower().StartsWith(courseTitleSearch.ToLower()));
 
             //Count all matching records before paging.
             int totalCount = await query.CountAsync();
@@ -71,16 +89,16 @@ namespace StudentSystem.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(PagedCollectionResultDto<CourseDto>), 200)]
         [ProducesResponseType(401)]
-        public async Task<IActionResult> GetCourses(int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, bool includeStudents = false) {
-            return Ok(await GetCourses(pageIndex, pageSize, null, includeStudents));
+        public async Task<IActionResult> GetCourses(int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, CourseSortField sortBy = CourseSortField.Title, SortDirection sortDir = SortDirection.Ascending, bool includeStudents = false) {
+            return Ok(await GetCourses(pageIndex, pageSize, sortBy, sortDir, null, includeStudents));
         }
 
         [HttpGet("search/{courseTitle}")]
         [ProducesResponseType(typeof(PagedCollectionResultDto<CourseDto>), 200)]
         [ProducesResponseType(401)]
-        public async Task<IActionResult> GetCoursesBySearch(string courseTitle, int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, bool includeStudents = false) {
+        public async Task<IActionResult> GetCoursesBySearch(string courseTitle, int pageIndex = 0, int pageSize = AppSettings.DEFAULT_PAGE_SIZE, CourseSortField sortBy = CourseSortField.Title, SortDirection sortDir = SortDirection.Ascending, bool includeStudents = false) {
 
-            PagedCollectionResultDto<CourseDto>? result = await GetCourses(pageIndex, pageSize, courseTitle, includeStudents);
+            PagedCollectionResultDto<CourseDto>? result = await GetCourses(pageIndex, pageSize, sortBy, sortDir, courseTitle, includeStudents);
             return result != null ? Ok(result) : NotFound("No courses found for the specified search criteria.");
         }
 
