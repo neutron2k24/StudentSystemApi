@@ -6,7 +6,7 @@ namespace StudentSystem.Dto
     /// <summary>
     /// Defines a Data Transfer Object for creating or updating a Course Enrollment Entity.
     /// </summary>
-    public class BasicCourseEnrollmentDetailDto : ICourseEnrollment
+    public record BasicCourseEnrollmentDetailDto : ICourseEnrollment
     {
         [Required]
         public int CourseId { get; set; }

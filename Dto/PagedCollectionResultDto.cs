@@ -1,8 +1,10 @@
-﻿namespace StudentSystem.Dto {
+﻿using StudentSystem.Interfaces;
+
+namespace StudentSystem.Dto {
     /// <summary>
     /// Defines a collection of DTOs
     /// </summary>
-    public class PagedCollectionResultDto<T> {
+    public class PagedCollectionResultDto<T> : IRestDto {
         
         public List<T>? Results { get; set; }
 
@@ -12,5 +14,7 @@
 
         public int? ResultCount { get; set; }
         public int? TotalCount { get; set; }
+
+        public List<LinkDto>? Links { get; set; }
     }
 }

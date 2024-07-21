@@ -6,7 +6,7 @@ namespace StudentSystem.Dto
     /// <summary>
     /// Defines a Data Transfer Object for creating or updating a course entity.
     /// </summary>
-    public class BasicCourseDetailDto : ICourse { 
+    public record BasicCourseDetailDto : ICourse { 
         [Required]
         public string? Title { get; set; }
 

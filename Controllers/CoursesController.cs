@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using StudentSystem.Configuration;
 using StudentSystem.Data;
 using StudentSystem.Dto;
@@ -76,11 +74,11 @@ namespace StudentSystem.Controllers
             if (courses != null) {
                 List<CourseDto> courseDtos = new List<CourseDto>();
                 courses.ForEach(course => {
-                    CourseDto? courseDto = _dtoGeneratorService.GetCourseDtoForCourseEntity(course, includeStudents);
+                    CourseDto? courseDto = _dtoGeneratorService.GetCourseDtoForCourseEntity(course, this.Url, includeStudents);
                     if (courseDto != null) courseDtos.Add(courseDto);
                 });
 
-                return _dtoGeneratorService.GetPagedCollectionResultDto(pageIndex, pageSize, totalCount, courseDtos);
+                return _dtoGeneratorService.GetPagedCollectionResultDto("Courses", pageIndex, pageSize, totalCount, courseDtos, this.Url);
             }
             return null;
         }
@@ -110,7 +108,7 @@ namespace StudentSystem.Controllers
             Course? course = includeStudents ? await _dbContext.Courses.Where(c => c.CourseId == id).Include(c => c.Enrollments).ThenInclude(en => en.Student).SingleOrDefaultAsync() : await _dbContext.Courses.FindAsync(id);
 
             if (course != null) {
-                return Ok(_dtoGeneratorService.GetCourseDtoForCourseEntity(course, includeStudents));
+                return Ok(_dtoGeneratorService.GetCourseDtoForCourseEntity(course, this.Url, includeStudents));
             }
             return NotFound("No matching course was found for the specified id.");
         }
@@ -151,7 +149,7 @@ namespace StudentSystem.Controllers
                 //Detatch and update
                 _dbContext.Entry(course).State = EntityState.Modified;
                 return await _dbContext.SaveChangesAsync() > 0 ? 
-                    Ok(_dtoGeneratorService.GetCourseDtoForCourseEntity(course, true))
+                    Ok(_dtoGeneratorService.GetCourseDtoForCourseEntity(course, this.Url, true))
                     : Problem(GENERIC_SERVER_ERROR_MESSAGE, statusCode: 500);
             }
             return BadRequest(ModelState);
