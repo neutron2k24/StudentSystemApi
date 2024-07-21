@@ -80,11 +80,11 @@ namespace StudentSystem.Controllers
             if (students != null) {
                 List<StudentDto> studentDtos = new List<StudentDto>();
                 students.ForEach(student => {
-                    StudentDto? studentDto = _dtoGeneratorService.GetStudentDtoForStudentEntity(student, includeEnrolledCourses);
+                    StudentDto? studentDto = _dtoGeneratorService.GetStudentDtoForStudentEntity(student, this.Url, includeEnrolledCourses);
                     if (studentDto != null) studentDtos.Add(studentDto);
                 });
 
-                return _dtoGeneratorService.GetPagedCollectionResultDto(pageIndex, pageSize, totalCount, studentDtos);
+                return _dtoGeneratorService.GetPagedCollectionResultDto("Students", pageIndex, pageSize, totalCount, studentDtos, this.Url);
             }
             return null;
         }
@@ -121,7 +121,7 @@ namespace StudentSystem.Controllers
         public async Task<IActionResult> GetStudent(int id, bool includeEnrolledCourses = false) {
             Student? student = includeEnrolledCourses ? await _dbContext.Students.Where(s => s.StudentId == id).Include(s => s.Enrollments).ThenInclude(en => en.Course).SingleOrDefaultAsync() : await _dbContext.Students.FindAsync(id);
             if (student != null) {
-                return Ok(_dtoGeneratorService.GetStudentDtoForStudentEntity(student, includeEnrolledCourses));
+                return Ok(_dtoGeneratorService.GetStudentDtoForStudentEntity(student, this.Url, includeEnrolledCourses));
             }
             return NotFound("No matching student was found for the specified id.");
         }
@@ -169,7 +169,7 @@ namespace StudentSystem.Controllers
                 _dbContext.Entry(student).State = EntityState.Modified;
 
                 return await _dbContext.SaveChangesAsync() > 0 ? 
-                    Ok(_dtoGeneratorService.GetStudentDtoForStudentEntity(student, true)) : 
+                    Ok(_dtoGeneratorService.GetStudentDtoForStudentEntity(student, this.Url, true)) : 
                     Problem(GENERIC_SERVER_ERROR_MESSAGE, statusCode: 500);
             }
             return BadRequest(ModelState);

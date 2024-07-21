@@ -6,8 +6,10 @@ namespace StudentSystem.Dto {
     /// <summary>
     /// Defines a Data Transfer Object for a Course.
     /// </summary>
-    public class CourseDto : BasicCourseDetailDto {
+    public record CourseDto : BasicCourseDetailDto, IRestDto {
         public int CourseId { get; set; }
+
+        public List<LinkDto>? Links { get; set; }
 
         public List<EnrolledStudentDto>? EnrolledStudents { get; set; }
     }

@@ -5,7 +5,7 @@ namespace StudentSystem.Dto {
     /// Defines a Data Transfer Object for a Students Course enrollments
     /// Only includes the course entity for a CourseEnrollment.
     /// </summary>
-    public class StudentCourseEnrollmentDto {
+    public record StudentCourseEnrollmentDto {
 
         public int CourseEnrollmentId { get; set; }
 

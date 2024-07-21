@@ -16,6 +16,9 @@ string connectionString = builder.Configuration.GetConnectionString("SqlLiteConn
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connectionString));
 
+//Add HttpContextAccessor for DTO Generator Service
+builder.Services.AddHttpContextAccessor();
+
 //Prevent Json Cyclic exceptions due to the Entity Framework references, and omit null properties from JSON response.
 builder.Services.AddControllers().AddJsonOptions(options => {
     //options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -65,8 +68,8 @@ builder.Services.AddCors(options => {
 
 //Constructor Dependency Injection for Applcation DbContext into controllers.
 builder.Services.AddScoped<ApplicationDbContext>();
-builder.Services.AddSingleton<IDtoMappingService, DtoMapperService>();
-builder.Services.AddSingleton<IDtoGeneratorService, DtoGeneratorService>();
+builder.Services.AddScoped<IDtoMappingService, DtoMapperService>();
+builder.Services.AddScoped<IDtoGeneratorService, DtoGeneratorService>();
 var app = builder.Build();
 
 //Enable CORS
@@ -76,6 +79,10 @@ app.UseCors(allowedOrigins);
 if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
+}
+else {
+    app.UseExceptionHandler("/error");
 }
 
 app.UseHttpsRedirection();

@@ -1,8 +1,8 @@
-﻿using StudentSystem.Models;
+﻿using StudentSystem.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
 namespace StudentSystem.Dto {
-    public class CourseEnrollmentDto : BasicCourseEnrollmentDetailDto {
+    public record CourseEnrollmentDto : BasicCourseEnrollmentDetailDto, IRestDto {
         public int CourseEnrollmentId { get; set; }
 
         [Display(Name = "Enrollment Date")]
@@ -10,5 +10,7 @@ namespace StudentSystem.Dto {
 
         public CourseDto? Course { get; set; }
         public StudentDto? Student { get; set; }
+
+        public List<LinkDto>? Links { get; set; }
     }
 }
