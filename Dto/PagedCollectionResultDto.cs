@@ -2,9 +2,9 @@
 
 namespace StudentSystem.Dto {
     /// <summary>
-    /// Defines a collection of DTOs
+    /// Defines a paged collection result for specified IRestBaseDto
     /// </summary>
-    public class PagedCollectionResultDto<T> : IRestDto {
+    public record PagedCollectionResultDto<T> : RestBaseDto, IRestResponseDto where T : RestBaseDto {
         
         public List<T>? Results { get; set; }
 

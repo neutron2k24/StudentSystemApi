@@ -7,7 +7,7 @@ namespace StudentSystem.Dto {
     /// Defines a Data Transfer Object for an existing student.
     /// Inherits properties from StudentDetailDto
     /// </summary>
-    public record StudentDto : BasicStudentDetailDto, IRestDto {
+    public record StudentDto : BasicStudentDetailDto, IRestResponseDto {
 
         public int StudentId { get; set; }
 

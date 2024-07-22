@@ -1,11 +1,12 @@
-﻿using StudentSystem.Models;
+﻿using StudentSystem.Interfaces;
+using StudentSystem.Models;
 
 namespace StudentSystem.Dto {
     /// <summary>
     /// Defines a Data Transfer Object for a Students Course enrollments
     /// Only includes the course entity for a CourseEnrollment.
     /// </summary>
-    public record StudentCourseEnrollmentDto {
+    public record StudentCourseEnrollmentDto : RestBaseDto {
 
         public int CourseEnrollmentId { get; set; }
 

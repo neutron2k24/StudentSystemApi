@@ -221,7 +221,7 @@ namespace StudentSystem.Services {
         /// <summary>
         /// Generate a PagedCollectionResultDto object
         /// </summary>
-        public PagedCollectionResultDto<T> GetPagedCollectionResultDto<T>(string controllerRoute, int pageIndex, int pageSize, int totalCount, List<T> results, IUrlHelper? urlHelper) {
+        public PagedCollectionResultDto<T> GetPagedCollectionResultDto<T>(string controllerRoute, int pageIndex, int pageSize, int totalCount, List<T> results, IUrlHelper? urlHelper) where T : RestBaseDto {
             PagedCollectionResultDto<T> pagedResultDto = new PagedCollectionResultDto<T>() {
                 PageIndex = pageIndex,
                 PageSize = pageSize,

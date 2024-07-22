@@ -2,7 +2,7 @@
 namespace StudentSystem {
     namespace Interfaces {
         //Define an interface for DTOs to include HATEAOS support.
-        public interface IRestDto {
+        public interface IRestResponseDto {
 
             /// <summary>
             /// HATEOAS Links.

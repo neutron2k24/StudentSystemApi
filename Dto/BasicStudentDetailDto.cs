@@ -7,8 +7,7 @@ namespace StudentSystem.Dto
     /// <summary>
     /// Defines a Data Transfer Object for Creating or Updating a Student Entity
     /// </summary>
-    public record BasicStudentDetailDto : IStudent
-    {
+    public record BasicStudentDetailDto : RestBaseDto, IStudent {
         [Required]
         public string? Forename { get; set; }
 

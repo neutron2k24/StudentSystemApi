@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace StudentSystem.Dto {
-    public record CourseEnrollmentDto : BasicCourseEnrollmentDetailDto, IRestDto {
+    public record CourseEnrollmentDto : BasicCourseEnrollmentDetailDto, IRestResponseDto {
         public int CourseEnrollmentId { get; set; }
 
         [Display(Name = "Enrollment Date")]

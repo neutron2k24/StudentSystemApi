@@ -36,6 +36,6 @@ namespace StudentSystem.Interfaces {
         /// <summary>
         /// Generate a PagedCollectionResultDto object
         /// </summary>
-        PagedCollectionResultDto<T> GetPagedCollectionResultDto<T>(string controllerRoute, int pageIndex, int pageSize, int totalCount, List<T> results, IUrlHelper? urlHelper);
+        PagedCollectionResultDto<T> GetPagedCollectionResultDto<T>(string controllerRoute, int pageIndex, int pageSize, int totalCount, List<T> results, IUrlHelper? urlHelper) where T : RestBaseDto;
     }
 }
